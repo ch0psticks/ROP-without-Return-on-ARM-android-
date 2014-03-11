@@ -1,10 +1,4 @@
-Date: 2014-03-10  
-Title: ROP on Android初探
-Published: true  
-Type: post  
-slug:ROp-on-android
 
----------
 
 ROP在Windows、Linux以及MAC OS X平台上的exploitation中已经很普遍了，在iOS的越狱中也经常用到。在android平台怎么样呢？从本质来看，Android上的NativeCode以ARM指令进行执行的，所以只要基于ARM的ROP没问题，Android上NativeCode层的ROP也不会有问题。
 
@@ -179,7 +173,7 @@ connector-->gdaget_1-->connector-->gadget_2-->....-->connector-->gadget_n
 
 ### 实际的可操作性
 
-大家可能会看到这里仅仅是一个构造的漏洞程序，而且很多信息都是硬编码的，那么在真实场景中如何解决随机化？其实这点，利用信息泄露，获取其中一个变量或函数的实际地址，则有可能根据偏移推测出内存布局，从而绕过ASLR，在文章[《Jekyll on iOS》](Jekyll_on_iOS)中有介绍和应用。
+大家可能会看到这里仅仅是一个构造的漏洞程序，而且很多信息都是硬编码的，那么在真实场景中如何解决随机化？其实这点，利用信息泄露，获取其中一个变量或函数的实际地址，则有可能根据偏移推测出内存布局，从而绕过ASLR，在文章[《Jekyll on iOS》](#Jekyll_on_iOS)中有介绍和应用。
 
 ### ROP的后续
 
@@ -187,7 +181,7 @@ connector-->gdaget_1-->connector-->gadget_2-->....-->connector-->gadget_n
 
 ### 其它
 
-在Android2.3.3上测试过，代码放在[github]()上。
+在Android2.3.3上测试过，代码放在[github](https://github.com/ch0psticks/ROP-without-Return-on-ARM-android-)上。
 
 gadget用的是libc.so中的指令。
 
