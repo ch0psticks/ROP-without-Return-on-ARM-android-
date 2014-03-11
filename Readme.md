@@ -1,5 +1,4 @@
 
-
 ROP在Windows、Linux以及MAC OS X平台上的exploitation中已经很普遍了，在iOS的越狱中也经常用到。在android平台怎么样呢？从本质来看，Android上的NativeCode以ARM指令进行执行的，所以只要基于ARM的ROP没问题，Android上NativeCode层的ROP也不会有问题。
 
 本文主要根据Lucas Davi发表于2010年的一个报告[《Return-Oriented-Programming without Returns on ARM》](#ROP_without_Return_on_arm)，对其中的实验进行了重现。
@@ -26,7 +25,7 @@ ROP在Windows、Linux以及MAC OS X平台上的exploitation中已经很普遍了
 
 指令的其它具体介绍看参考文献[《Thumb指令集》](http://wenku.baidu.com/link?url=T9llkhuwBDpF7hQyVKLIT1nEq6xJVpBw97VFoKuY8tqSy-xHuMYlA0QUFifk3pSmfP1uSuvV4VDHiuClxN3PNDmHFkLviK2HwnDUZpeqTOe###)。
 
-### <h3 id=1.2>gadget的组织</h3>
+### 1.2 gadget的组织
 
 根据对ARM下blx分支指令的介绍，对于指令`blx Rn`，若攻击者能够控制Rn寄存器则可以获得控制流，这有点类似于x86平台上的栈异常，控制返回地址后，即可劫持控制流。
 
@@ -48,11 +47,10 @@ Gadget1->connector->Gadget2->connector->Gadget3...
 
 为了证明的ROP攻击的有效性，在文章[《Return-Oriented-Programming without Returns on ARM》](#ROP_without_Return_on_arm)中，对这种攻击方法进行了图灵完整性(Turing Completeness)的证明，即证明能有效的模拟实现图灵机中的基本操作（内存操作，数据处理，循环、分支等控制流，函数调用等），从而说明可实现计算机中普通程序一样的的任何功能
 
-Rja, Rsp, 
 
 ## <h2 id=implementation>二. 实现</h4>
 
-### 验证程序
+### 2.1 验证程序
 
 **验证程序结构**
 构造大致流程如下的测试程序。
@@ -127,7 +125,7 @@ Rja, Rsp,
 2. 通过覆盖r4~r12,sp等寄存器实现参数的布局和gadget的串联；
 3. 如果涉及r0~r3的寄存器，则需要通过其他gadget实现r0~r3的初始化。
 
-### gadget选择和组合
+### 2.2 gadget选择和组合
 
 从模块中选择gadget指令块，可利用objdump手工寻找。当然更高效的办法就是利用[ropshell.com](http://www.ropshell.com)网站提供的在线搜索功能。可上传需要搜索的模块文件，然后即可搜索其中的指令。
 
@@ -165,21 +163,21 @@ connector-->gdaget_1-->connector-->gadget_2
 connector-->gdaget_1-->connector-->gadget_2-->....-->connector-->gadget_n
 	
 
-### 关于gadget地址的修正说明
+### 2.3 关于gadget地址的修正说明
 
 前面已经说明了，对于`blx Rn`，Rn的最低位决定是按照ARM指令集还是按照Thumb指令集执行。考虑到libc.so中大部分为thumb指令集，Rn中放置的必然是个奇数地址(ROPshell网站搜到的基本都是奇数地址，即无需修正)，当gadget地址或函数地址不为奇数时，**需要进行+1操作，进行修正，使其以thumb指令状态执行**。如 system地址为`0xafd17fd8`,使用时则应使用`0xafd17fd8+1`。否则会出现无端的执行错误。（被坑了很久很久-_-）
 
 ## 三. 总结
 
-### 实际的可操作性
+### 3.1 实际的可操作性
 
 大家可能会看到这里仅仅是一个构造的漏洞程序，而且很多信息都是硬编码的，那么在真实场景中如何解决随机化？其实这点，利用信息泄露，获取其中一个变量或函数的实际地址，则有可能根据偏移推测出内存布局，从而绕过ASLR，在文章[《Jekyll on iOS》](#Jekyll_on_iOS)中有介绍和应用。
 
-### ROP的后续
+### 3.2 ROP的后续
 
 这篇文章，从现在来看，已然比较早，但是针对Android的ROP并未出现太新的进展，那么就有两种可能：1）不值得去做；2）太难。姑且认为是后者吧，这是一个不存在什么不可能的师姐和时代，永远无法超越的是思想，而非步伐。
 
-### 其它
+### 3.3 其它
 
 在Android2.3.3上测试过，代码放在[github](https://github.com/ch0psticks/ROP-without-Return-on-ARM-android-)上。
 
